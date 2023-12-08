@@ -5,7 +5,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 
 
 
-const LoginScreen = ({navigation}) =>{
+const SigupScreen = ({navigation}) =>{
     return(
         <LinearGradient
         colors={["#FFD52E", "#FFD52E","#fff"]}// Replace with your desired gradient colors
@@ -41,7 +41,7 @@ const LoginScreen = ({navigation}) =>{
     );
 }
 
-export default LoginScreen;
+
 
 const styles = StyleSheet.create({
     textView: {
@@ -82,3 +82,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     }
 })
+
+
+export default SigupScreen;
