@@ -1,11 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import { Text,SafeAreaView,View, Button, StyleSheet,TextInput } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import {getAuth, signInWithEmailAndPassword} from 'firebase/auth'
+import app from "../../config/FireBase";
 
-
+const auth = getAuth();
 
 const LoginScreen = ({navigation}) =>{
+    const [email, setEmail] = useState('');
+    const [password,setPassword] = useState('');
+
+    const handleLogin = () => {
+          signInWithEmailAndPassword(auth,email, password).then((userCredential) => {
+            const user = userCredential.user;
+            console.log(user.displayName)
+            console.log('User signed in:', user.uid);
+            navigation.replace('Main')
+          })
+        .catch ((error) => {
+          console.error('Error signing in:', error.message);
+            }
+        )
+      }
+    
+    
     return(
         <LinearGradient
         colors={["#FFD52E", "#FFD52E","#fff"]}// Replace with your desired gradient colors
@@ -18,14 +37,28 @@ const LoginScreen = ({navigation}) =>{
                 <Text style={{fontSize:80, marginBottom: 40}}>FoodNote</Text>
                 <View style={styles.stackView}>
                     <Text style={styles.inputLabel}>Email</Text>
-                    <TextInput style={styles.inputField} placeholder="Email" inputMode="email"></TextInput>
+                    <TextInput 
+                        style={styles.inputField} 
+                        placeholder="Email" 
+                        inputMode="email" 
+                        onChangeText={(value)=>{setEmail(value)}}
+                    />
                 </View>
                 <View style={styles.stackView}>
                     <Text style={styles.inputLabel}>Password</Text>
-                    <TextInput style={styles.inputField} placeholder="Password" secureTextEntry={true}inputMode="text" ></TextInput>
+                    <TextInput 
+                        style={styles.inputField} 
+                        placeholder="Password" 
+                        secureTextEntry={true} 
+                        inputMode="text" 
+                        onChangeText={(value)=>{setPassword(value)}}
+                    />
                 </View>
                 <View style={{marginTop: 30}}>
-                    <TouchableOpacity style={styles.loginButton}>
+                    <TouchableOpacity 
+                        style={styles.loginButton}
+                        onPress={handleLogin}
+                    >
                         <Text style={{fontSize: 25}}>Login</Text>
                     </TouchableOpacity>
                 </View>
