@@ -1,12 +1,53 @@
-import React from "react";
+import React,{useEffect} from "react";
 import { Text ,StyleSheet, View, SafeAreaView,StatusBar, TouchableOpacity} from "react-native";
 // import LinearGradient from "react-native-linear-gradient";
 import { LinearGradient } from "expo-linear-gradient";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const LandingScreen = ({navigation}) =>{
+
+    useEffect(() => {
+        const checkAuthentication = async () => {
+          try {
+            const currentTime = new Date().getTime();
+            // Set last activity timestamp when the user gets into the LandingScreen
+            // const currentTime = new Date().getTime();
+            const userString = await AsyncStorage.getItem('user');
+            if (userString) {
+              const user = JSON.parse(userString);
+    
+              const lastActivityTimestamp = await AsyncStorage.getItem('lastActivityTimestamp');
+    
+              if (lastActivityTimestamp) {
+                // const currentTime = new Date().getTime();
+                const timeDiff = currentTime - parseInt(lastActivityTimestamp, 10);
+    
+                const sessionTimeout = 2 * 24 * 60 * 60 * 1000;
+    
+                if (timeDiff > sessionTimeout) {
+                  console.log('Session has timed out. Please log in again.');
+                  AsyncStorage.removeItem('user');
+                  navigation.replace('Login');
+                  return;
+                }
+              }
+              
+              console.log('User is already authenticated:', user.uid);
+              AsyncStorage.setItem('lastActivityTimestamp', currentTime.toString());
+              navigation.replace('Main');
+            }
+          } catch (error) {
+            console.error('Error checking authentication:', error.message);
+          }
+        };
+    
+        checkAuthentication();
+      }, [navigation]);
+    
+    
     return(
         <LinearGradient
             colors={["#FFD52E", "#FFD52E","#fff"]}// Replace with your desired gradient colors
