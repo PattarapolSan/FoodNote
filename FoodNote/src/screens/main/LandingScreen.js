@@ -33,12 +33,15 @@ const LandingScreen = ({navigation}) =>{
                     <View style={styles.bottonView}>
                         <TouchableOpacity 
                             style={styles.loginButton}
-                            onPress={()=>navigation.navigate('Login')}
+                            onPress={()=>navigation.replace('Login')}
                         
                         >
                             <Text style={{fontSize: 30}}>Login</Text>
                         </TouchableOpacity>
-                        <TouchableOpacity style={styles.signupButton}>
+                        <TouchableOpacity 
+                            style={styles.signupButton}
+                            onPress={()=>navigation.replace('Signup')}
+                        >
                             <Text style={{fontSize: 20}}>Signup</Text>
                         </TouchableOpacity>
                     </View>

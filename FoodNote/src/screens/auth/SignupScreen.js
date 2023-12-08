@@ -15,24 +15,35 @@ const SigupScreen = ({navigation}) =>{
     >
         <SafeAreaView style={{flex:1}}>
             <View style={styles.inputView}>
-                <Text style={{fontSize:80, marginBottom: 40}}>FoodNote</Text>
+                <Text style={{fontSize:80, marginBottom: 10}}>FoodNote</Text>
                 <View style={styles.stackView}>
                     <Text style={styles.inputLabel}>Email</Text>
                     <TextInput style={styles.inputField} placeholder="Email" inputMode="email"></TextInput>
                 </View>
                 <View style={styles.stackView}>
+                    <Text style={styles.inputLabel}>Username</Text>
+                    <TextInput style={styles.inputField} placeholder="Username"></TextInput>
+                </View>
+                <View style={styles.stackView}>
                     <Text style={styles.inputLabel}>Password</Text>
                     <TextInput style={styles.inputField} placeholder="Password" secureTextEntry={true}inputMode="text" ></TextInput>
                 </View>
+                <View style={styles.stackView}>
+                    <Text style={styles.inputLabel}>Confirmed Password</Text>
+                    <TextInput style={styles.inputField} placeholder="Confirmed Password" secureTextEntry={true}inputMode="text" ></TextInput>
+                </View>
                 <View style={{marginTop: 30}}>
                     <TouchableOpacity style={styles.loginButton}>
-                        <Text style={{fontSize: 25}}>Login</Text>
+                        <Text style={{fontSize: 25}}>Sign Up</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={{marginTop: 70}}>
+
+                <View style={{marginTop: 40}}>
+                    <Text style={{fontSize: 20, marginBottom:10}}>Already have an account?</Text>
                     <Button
-                    title="Sign Up"
+                    title="Login"
                     color={'black'}
+                    onPress={() => navigation.replace('Login')}
                     />
                 </View>
             </View>
@@ -59,7 +70,7 @@ const styles = StyleSheet.create({
     inputField:{
         borderRadius: 15,
         width: 300,
-        height: 60,
+        height: 50,
         marginBottom: 20,
         fontSize: 18,
         paddingLeft: 10,
@@ -69,8 +80,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     inputLabel: {
-        fontSize: 30,
-        marginBottom:10,
+        fontSize: 20,
+        marginBottom:5,
         paddingLeft: 5
     },
     loginButton: {

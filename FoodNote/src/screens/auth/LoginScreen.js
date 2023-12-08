@@ -29,10 +29,12 @@ const LoginScreen = ({navigation}) =>{
                         <Text style={{fontSize: 25}}>Login</Text>
                     </TouchableOpacity>
                 </View>
-                <View style={{marginTop: 70}}>
+                <View style={{marginTop: 40}}>
+                <Text style={{fontSize: 20, marginBottom:10}}>Don't have an account?</Text>
                     <Button
                     title="Sign Up"
                     color={'black'}
+                    onPress={()=>navigation.replace('Signup')}
                     />
                 </View>
             </View>
