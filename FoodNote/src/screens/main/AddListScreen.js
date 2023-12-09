@@ -1,9 +1,10 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text,View,StyleSheet,Button, SafeAreaView,Pressable, TextInput, ScrollView, TouchableOpacityComponent, TouchableOpacity} from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FontAwesome } from "@expo/vector-icons";
 
 const AddListScreen = ({navigation}) => {
+    const currentDate = new Date().toDateString();
     const [title, settitle] = useState("nothing")
     const [ingredients, setingredientlist] = useState([{id: 1, name: "name", weight: "kg", calories:"kg"}])
     const [sumcal, setsumcal] = useState(0)
@@ -14,15 +15,19 @@ const AddListScreen = ({navigation}) => {
             ingredient.id === id ? {...ingredient, [field]: value} : ingredient
         )
         
+        setingredientlist(newOne)
+    }
+
+    useEffect(()=>{
         const totalCalories = ingredients.reduce((acc, ingredient) => {
-            return acc + parseInt(ingredient.calories);
+                return acc + parseInt(ingredient.calories | 0);
         }, 0);
         console.log("type of",typeof(totalCalories))
         setsumcal(totalCalories)
-        setingredientlist(newOne)
+    },[ingredients])
 
-        console.log(JSON.stringify(ingredients,))
-    }
+    console.log("Title",title)
+    console.log(JSON.stringify(ingredients))
 
     const handleaddIngredient = () => {
         const newId = ingredients.length + 1;
@@ -49,11 +54,11 @@ const AddListScreen = ({navigation}) => {
             
             <View style={styles.addarea}>
                  <View style={styles.Addpagecompt}>
-                    <Text style={{fontSize: 40}}>Today Date</Text>
+                    <Text style={{fontSize: 30}}>Date: {currentDate}</Text>
                 </View>
 
                 <View style={styles.entertitle}>
-                    <TextInput style={styles.input} onChange={() => settitle()} placeholder="Enter Titile"></TextInput>
+                    <TextInput style={styles.input} onChangeText={(text) => settitle(text)} placeholder="Enter Titile"></TextInput>
                 </View>
 
                 <View style={styles.ingredients}>
