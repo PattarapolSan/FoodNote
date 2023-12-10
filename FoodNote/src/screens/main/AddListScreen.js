@@ -1,163 +1,153 @@
 import React, { useEffect, useState } from "react";
 import { Text,View,StyleSheet,Button, SafeAreaView,Pressable, TextInput, ScrollView, TouchableOpacityComponent, TouchableOpacity} from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import IngredientsListComponent from "../../components/IngerdientsListComponent";
 import { FontAwesome } from "@expo/vector-icons";
+import DateTimePicker from '@react-native-community/datetimepicker';
+import addMenuToDB from "../../function/addMenutoDB";
+
 
 const AddListScreen = ({navigation}) => {
-    const currentDate = new Date().toDateString();
-    const [title, settitle] = useState("nothing")
-    const [ingredients, setingredientlist] = useState([{id: 1, name: "name", weight: "kg", calories:"kg"}])
-    const [sumcal, setsumcal] = useState(0)
+    const [date, setDate] = useState(new Date())
+    const [title, setTitle] = useState('')
+    const [ingredientsList, setIngredientList] = useState([])
+    const [sumcal, setSumcal] = useState(0)
+    const [listId, setId] = useState(1);
+    const [userId, setUserId] = useState();
+
+    AsyncStorage.getItem('user').then((value)=> {
+        const userObj = JSON.parse(value);
+        setUserId(userObj.uid);
+        console.log(userObj.uid);
+    })
 
 
-    const handleinputchange = (id, field, value) => {
-        const newOne = ingredients.map((ingredient) => 
+    const handleInputchange = (id, field, value) => {
+        const newData = ingredientsList.map((ingredient) => 
             ingredient.id === id ? {...ingredient, [field]: value} : ingredient
         )
-        
-        setingredientlist(newOne)
+
+        setIngredientList(newData)
     }
+        
 
     useEffect(()=>{
-        const totalCalories = ingredients.reduce((acc, ingredient) => {
+        const totalCalories = ingredientsList.reduce((acc, ingredient) => {
                 return acc + parseInt(ingredient.calories | 0);
         }, 0);
-        console.log("type of",typeof(totalCalories))
-        setsumcal(totalCalories)
-    },[ingredients])
+        // console.log("type of",typeof(totalCalories))
+        setSumcal(totalCalories)
+    },[ingredientsList])
 
-    console.log("Title",title)
-    console.log(JSON.stringify(ingredients))
-
-    const handleaddIngredient = () => {
-        const newId = ingredients.length + 1;
-        setingredientlist([...ingredients, {id: newId, name: 'name', weight: 'kg', calories: "kg"}]);
+    const handleAddIngredient = () => {
+        setIngredientList([...ingredientsList, {id:listId ,name: '', weight: '', calories: ''}]);
+        setId(listId+1);
     }
 
-    const handledeleteingredients = (id) => {
-        const newingredient = ingredients.filter((ingredient) => ingredient.id !== id)
-        setingredientlist(newingredient)
+    const handleDeleteIngredients = (id) => {
+        console.log('id', id)
+        const newingredient = ingredientsList.filter((ingredient) => ingredient.id !== id)
+        setIngredientList(newingredient)
+    }
+
+    const handleAddMenu = async () => {
+        addMenuToDB(userId, title, date, ingredientsList, sumcal);
+        navigation.goBack();
     }
 
     
 
-    AsyncStorage.getItem('user').then((value)=> {
-        console.log(value);
-    })
+ 
     return(
-        <View style={styles.container}>
-            <SafeAreaView style={{flexDirection: "row", marginHorizontal: 16}}>
-                <Pressable style={{flex: 1, marginTop: 15}} onPress={() => navigation.goBack()}>
-                    <FontAwesome name={"arrow-circle-left"} size={40} color="black"/>
-                </Pressable>
-            </SafeAreaView>
-            
-            <View style={styles.addarea}>
-                 <View style={styles.Addpagecompt}>
-                    <Text style={{fontSize: 30}}>Date: {currentDate}</Text>
+        <SafeAreaView style={{flex:1}}>
+                <View style={styles.titleView}>
+                    <Text style={{fontSize:30}}>Add Menu</Text>
                 </View>
-
-                <View style={styles.entertitle}>
-                    <TextInput style={styles.input} onChangeText={(text) => settitle(text)} placeholder="Enter Titile"></TextInput>
-                </View>
-
-                <View style={styles.ingredients}>
-                    <ScrollView showsVerticalScrollIndicator={false}>
-                        <Text style={{fontSize: 40 , alignItems: "left"}}>Ingredients</Text>
-                        <View style={{ flexDirection: "row", marginTop: 5, justifyContent: "space-around"}}>
-                            <Text style={{fontSize: 20}}>Ingredient</Text>
-                            <Text style={{fontSize: 20}}>Weight</Text>
-                            <Text style={{fontSize: 20}}>Calories</Text>
-                        </View>
-                        {ingredients.map((ingredients, index) => (
-                                <View style={styles.ingredients_add}>
-                                    <TextInput 
-                                        style={styles.input} 
-                                        value={ingredients.name} 
-                                        onChangeText={(text) => handleinputchange(ingredients.id, 'name', text)}
-                                    />
-                                    <TextInput 
-                                        style={styles.input} 
-                                        value={ingredients.weight} 
-                                        onChangeText={(text) => handleinputchange(ingredients.id, 'weight', text)}
-                                    />
-                                    <TextInput 
-                                        style={styles.input} 
-                                        value={ingredients.calories} 
-                                        onChangeText={(text) => handleinputchange(ingredients.id, 'calories', text)}
-                                    />
-                                    <Pressable style={{marginTop: 15, alignItems: "center"}} onPress={() =>handledeleteingredients(ingredients.id)}>
-                                        <FontAwesome name={"trash"} size={40} color="red"/>
-                                    </Pressable> 
-                                 </View>
-                           ))}
-                        <View style={{marginVertical:10}}>
-                            <Pressable style={{flex: 1, marginTop: 15, alignItems: "center"}} onPress={handleaddIngredient}>
-                                <FontAwesome name={"plus"}  size={40} color="black"/>
-                            </Pressable>
-                        </View>
-                        <View style={styles.addcomponent}>
-                            <Text style={{backgroundColor: "rgba(135, 206, 235, 0.8)", fontSize: 30}}>Total calories: {sumcal}</Text>
-                        </View>
+                <View style={styles.contentView}>
+                    <View style={styles.stackView}>
+                        <Text  style={{fontSize:25}}>Title:</Text>
+                        <TextInput style={styles.titleInput} placeholder="Untitled" onChangeText={(value)=>setTitle(value)}/>
+                    </View>
+                    <View style={styles.stackView}>
+                        <Text  style={{fontSize:25}}>Date:</Text>
+                        <DateTimePicker 
+                            value={date} 
+                            mode={'date'} 
+                            onChange={(event, selectedDate)=>setDate(selectedDate)} maximumDate={new Date()}
+                        />
+                    </View>
+                    <View style={{alignItems:'center', marginTop:30}}>
+                        <Text style={{fontSize:25}}>Ingredients</Text>
+                    </View>
+                    <ScrollView style={{flex:1, borderBottomWidth:1, borderTopWidth:1, marginTop:4}}> 
+                    {
+                        ingredientsList.map((ingredients, index) => {
+                            return(
+                            <IngredientsListComponent 
+                                key={index} 
+                                id={ingredients.id}
+                                name={ingredients.name} 
+                                weight={ingredients.weight} 
+                                calories={ingredients.calories}
+                                onChangeText={handleInputchange}
+                                onPress={handleDeleteIngredients}
+                            />
+                            )
+                        })
+                    } 
                     </ScrollView>
+                    <View style={{justifyContent:'center', alignItems:'center', marginTop:30}}>
+                        <Pressable onPress={handleAddIngredient}>
+                            <FontAwesome name={"plus"}  size={40} color="black"/>
+                        </Pressable>
+                    </View>
+                    <View style={{flexDirection: 'row', justifyContent:'space-between', alignItems: 'center', marginBottom: 20, marginTop: 20}}>
+                        <Text style={{fontSize: 30}}>
+                            Total Calories
+                        </Text>
+                        <Text style={{fontSize: 40}}>
+                            {sumcal}
+                        </Text>
+                    </View>
+                    <View style={{alignItems: 'center'}}>
+                        <TouchableOpacity style={styles.addMenu} onPress={handleAddMenu}>
+                            <Text style={{fontSize: 20}}>Add Menu</Text>
+                        </TouchableOpacity>
+                    </View>
+
+
                 </View>
-            </View>
-        </View>
-        
+        </SafeAreaView>
+
 
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex:1
+    titleView:{
+        alignItems:"center"
     },
-    addarea: {
-        backgroundColor: "#fff",
+    contentView: {
         flex:1,
-        marginTop: 20,
-        marginLeft: 20,
-        marginRight: 20,
+        paddingLeft: 10,
+        paddingRight: 10
+    },
+    stackView:{
+        paddingTop: 10,
+        flexDirection: 'row',
         alignItems: "center",
-        paddingHorizontal: 16
     },
-    Addpagecompt: {
-        backgroundColor: "rgba(135, 206, 235, 0.8)",
-        paddingVertical: 30,
-        borderRadius: 5,
+    titleInput: {
+        fontSize: 25,
+        marginLeft: 10
+    },
+    addMenu:{
+        width: 200,
+        height: 60,
+        borderRadius: 20,
         alignItems: "center",
-        width: 300
-    },
-    entertitle: {
-        paddingVertical: 30,
-        borderRadius: 5,
-        alignItems: "center",
-    },  
-    input: {
-        height: 50,
-        width: "90%",
-        margin: 10,
-        borderWidth: 2,
-        padding: 10,
-        alignItems: "center"
-      },
-    ingredients: {
-        flex:1
-    },
-    ingredients_add:{
-        backgroundColor: "#80F3FF",
-        flexDirection: "row",
-        marginTop: 10
-    },
-    addcomponent:{
-        flex:1,
-        marginTop: 25
-    },
-    addcomponent_btn: {
-        XbackgroundColor: 'red',
-        alignItems: 'center',
         justifyContent: 'center',
-        borderColor: '#FFF300'
+        backgroundColor:"#FFD52E"
     }
 })
 
