@@ -1,4 +1,4 @@
-import React,{useState} from 'react'
+import React from 'react'
 import { StyleSheet, View,TextInput,Pressable,Text } from 'react-native';
 import { FontAwesome } from "@expo/vector-icons";
 
@@ -32,6 +32,7 @@ const IngredientsListComponent = (props) => {
                     <TextInput 
                         style={styles.input} 
                         value={props.calories}
+                        keyboardType='numeric'
                         placeholder='Calories'
                         onChangeText={(value) => props.onChangeText(props.id, "calories", value)}
                     />
