@@ -4,6 +4,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {getAuth, createUserWithEmailAndPassword, updateProfile} from 'firebase/auth'
 import app from "../../config/FireBase";
+import setUsersCalories from "../../function/setUserCalories";
 
 
 const SigupScreen = ({navigation}) =>{
@@ -26,6 +27,7 @@ const SigupScreen = ({navigation}) =>{
         const user = response.user;
         updateProfile(user, {displayName:username});
         console.log('User signed up:', user.uid, 'with username:', user.displayName);
+        setUsersCalories(user.uid,-1);
         navigation.replace('Login')
       })
       .catch((error) => {
