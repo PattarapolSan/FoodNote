@@ -64,6 +64,7 @@ const AddListScreen = ({navigation}) => {
 
  
     return(
+        
         <SafeAreaView style={{flex:1}}>
                 <View style={styles.titleView}>
                     <Text style={{fontSize:30}}>Add Menu</Text>
