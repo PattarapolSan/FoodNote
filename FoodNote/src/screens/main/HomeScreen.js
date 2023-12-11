@@ -40,12 +40,12 @@ const HomeScreen = ({ navigation }) => {
           if (userCalories !== null) {
             setIsLoading(true);
             setCalories(userCalories);
-            setShowConfirmationModal(false);
-          } else {
-            if(!isLoading){
+            if(userCalories == -1){
                 setShowConfirmationModal(true);
             }
-
+          } else {
+      
+    
             console.log('Calories are null for the user:', user.uid);
           }
         } catch (error) {

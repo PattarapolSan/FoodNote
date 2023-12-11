@@ -110,6 +110,7 @@ const ProfileScreen = ({ navigation }) => {
   const handleLogout = () => {
     console.log("Logout");
     AsyncStorage.removeItem("user");
+    AsyncStorage.removeItem("lastActivityTimestamp");
     navigation.replace("Landing");
   };
 

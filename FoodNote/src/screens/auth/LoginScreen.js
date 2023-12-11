@@ -1,9 +1,8 @@
 import React, { useState,useEffect } from "react";
-import { Text,SafeAreaView,View, Button, StyleSheet,TextInput } from "react-native";
+import { Text,SafeAreaView,View, Button, StyleSheet,TextInput,Alert } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import {getAuth, signInWithEmailAndPassword} from 'firebase/auth'
-import app from "../../config/FireBase";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const auth = getAuth();
@@ -14,24 +13,25 @@ const LoginScreen = ({navigation}) =>{
 
 
     const handleLogin = () => {
-          signInWithEmailAndPassword(auth,email, password).then((userCredential) => {
+        signInWithEmailAndPassword(auth, email, password)
+          .then((userCredential) => {
             const user = userCredential.user;
-            console.log(user.displayName)
+            console.log(user.displayName);
             console.log('User signed in:', user.uid);
             AsyncStorage.setItem('user', JSON.stringify({
-                uid: user.uid,
-                email: user.email,
-                username: user.displayName,
-              }));
+              uid: user.uid,
+              email: user.email,
+              username: user.displayName,
+            }));
             const currentTime = new Date().getTime();
             AsyncStorage.setItem('lastActivityTimestamp', currentTime.toString());
-            navigation.replace('Main')
+            navigation.replace('Main');
           })
-        .catch ((error) => {
-          console.error('Error signing in:', error.message);
-            }
-        )
-      }
+          .catch((error) => {
+            // console.error('Error signing in:', error.message);
+            Alert.alert('Login Failed', 'Invalid email or password. Please try again.');
+          });
+      };
     
     
     return(
