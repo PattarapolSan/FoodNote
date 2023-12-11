@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text,View,StyleSheet,Button, SafeAreaView,Pressable, TextInput, ScrollView, TouchableOpacity} from "react-native";
+import { Text,View,StyleSheet,Button, SafeAreaView,Pressable, TextInput, ScrollView, TouchableOpacity, ActivityIndicator} from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import IngredientsListComponent from "../../components/IngerdientsListComponent";
 import { FontAwesome } from "@expo/vector-icons";
@@ -14,6 +14,7 @@ const AddListScreen = ({navigation}) => {
     const [sumcal, setSumcal] = useState(0)
     const [listId, setId] = useState(1);
     const [userId, setUserId] = useState();
+    const [loading, setLoading] = useState(false);
 
     AsyncStorage.getItem('user').then((value)=> {
         const userObj = JSON.parse(value);
@@ -34,7 +35,6 @@ const AddListScreen = ({navigation}) => {
         const totalCalories = ingredientsList.reduce((acc, ingredient) => {
                 return acc + parseInt(ingredient.calories | 0);
         }, 0);
-        // console.log("type of",typeof(totalCalories))
         setSumcal(totalCalories)
     },[ingredientsList])
 
@@ -44,14 +44,20 @@ const AddListScreen = ({navigation}) => {
     }
 
     const handleDeleteIngredients = (id) => {
-        console.log('id', id)
         const newingredient = ingredientsList.filter((ingredient) => ingredient.id !== id)
         setIngredientList(newingredient)
     }
 
     const handleAddMenu = async () => {
-        addMenuToDB(userId, title, date, ingredientsList, sumcal);
-        navigation.goBack();
+        setLoading(true);
+        try {
+            await addMenuToDB(userId, title, date, ingredientsList, sumcal);
+            navigation.goBack();
+        } catch (error) {
+            console.error('Error adding menu:', error.message);
+        } finally {
+            setLoading(false);
+        }
     }
 
     
@@ -90,6 +96,8 @@ const AddListScreen = ({navigation}) => {
                                 calories={ingredients.calories}
                                 onChangeText={handleInputchange}
                                 onPress={handleDeleteIngredients}
+                                edit={true}
+                                showTrash={true}
                             />
                             )
                         })
@@ -109,9 +117,13 @@ const AddListScreen = ({navigation}) => {
                         </Text>
                     </View>
                     <View style={{alignItems: 'center'}}>
-                        <TouchableOpacity style={styles.addMenu} onPress={handleAddMenu}>
-                            <Text style={{fontSize: 20}}>Add Menu</Text>
-                        </TouchableOpacity>
+                    {loading ? (
+                    <ActivityIndicator size="large" color="#FFD52E" />
+                ) : (
+                    <TouchableOpacity style={styles.addMenu} onPress={handleAddMenu}>
+                        <Text style={{ fontSize: 20 }}>Add Menu</Text>
+                    </TouchableOpacity>
+                )}
                     </View>
 
 

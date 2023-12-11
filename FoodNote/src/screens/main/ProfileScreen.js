@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useCallback } from "react";
 import {
   Text,
   View,
@@ -13,38 +13,64 @@ import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import setUserCalories from '../../function/setUserCalories'
 import setUsersCalories from "../../function/setUserCalories";
-import {useRecoilState} from 'recoil'
-import {caloriesGoalState} from '../../util/globalState'
+import getUsersCalories from "../../function/getUserCalories";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
 
 const ProfileScreen = ({ navigation }) => {
-  // const [text, setText] = React.useState('Pigeon');
-  // const [email, setEmail] = React.useState('kritsakorn.s@hotmail.com');
   const [modalVisible, setModalVisible] = useState(false);
-  const [user, setUser] = useState({}); // Initialize user as an empty object
-  const [goalCalories, setGoalCalories] = useRecoilState(caloriesGoalState);
-  const [showGoalCalInput, setShowGoalCalInput] = useState(false); // State to manage the visibility of the goal calories input field
+  const [user, setUser] = useState({}); 
+  const [calories, setCalories] = useState(0);
+
 
   useEffect(() => {
-    AsyncStorage.getItem("user")
-      .then((value) => {
+    const fetchUser = async () => {
+      try {
+        const value = await AsyncStorage.getItem('user');
         if (value) {
-          setUser(JSON.parse(value)); // Parse the stored string to an object
+          setUser(JSON.parse(value));
         }
-      })
-      .catch((error) => {
-        console.error(error);
-      });
+      } catch (error) {
+        console.error('Error fetching user:', error.message);
+      }
+    };
+
+    fetchUser();
   }, []);
+
+  const fetchUserCalories = useCallback(async () => {
+    try {
+      const userCalories = await getUsersCalories(user.uid);
+
+      if (userCalories !== null) {
+        setCalories(userCalories);
+      } else {
+        console.log('Calories are null for the user:', user.uid);
+      }
+    } catch (error) {
+      console.error('Error fetching user calories:', error.message);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    // Call fetchUserCalories when the component mounts
+    fetchUserCalories();
+  }, [fetchUserCalories, user.uid]);
 
   const handleGoalCalInput = (value) => {
     // Check if the value is a number and within the limit of 99999
     const newValue = parseInt(value);
-    if (!isNaN(newValue) && newValue <= 99999) {
-      setGoalCalories(newValue);
+
+    if (Number.isNaN(newValue)) {
+      setCalories(0); //setter for state
+    } else if (newValue > 10) {
+      setCalories(newValue);
+    } else {
+      setCalories(newValue);
     }
+  
+
   };
 
   const handleLogout = () => {
@@ -98,7 +124,7 @@ const ProfileScreen = ({ navigation }) => {
             }}
           >
             <Text style={styles.textStyle}>Goal Calories:</Text>
-            <Text style={styles.textStyle}>{goalCalories}</Text>
+            <Text style={styles.textStyle}>{calories}</Text>
             <Pressable
               style={[styles.button, styles.buttonOpen]}
               onPress={() => setModalVisible(true)}
@@ -132,7 +158,7 @@ const ProfileScreen = ({ navigation }) => {
                     onChangeText={(value) => {
                       handleGoalCalInput(value);
                     }}
-                    value={goalCalories.toString()}
+                    value={calories.toString()}
                     keyboardType="numeric"
                   />
 
@@ -142,7 +168,7 @@ const ProfileScreen = ({ navigation }) => {
                   style={[styles.button, styles.buttonClose]}
                   onPress={() => {
                     setModalVisible(!modalVisible)
-                    setUsersCalories(user.uid, goalCalories)
+                    setUsersCalories(user.uid, calories )
                 } }
                 >
                   <Text style={styles.textStyle}>Confirm</Text>

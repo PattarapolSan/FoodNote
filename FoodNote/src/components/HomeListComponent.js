@@ -1,12 +1,8 @@
 import React,{useEffect, useState} from 'react'
 import { StyleSheet, View,TextInput,Pressable,Text, TouchableOpacity } from 'react-native';
-import { FontAwesome } from "@expo/vector-icons";
-import { useRecoilState } from 'recoil';
-import { todayCaloriesState } from '../util/globalState';
-
 
 const HomeListComponent = (props) => {
-        const [todayCal,setTodayCal] = useRecoilState(todayCaloriesState);
+ 
         
 
 
@@ -33,7 +29,18 @@ const HomeListComponent = (props) => {
             {props.items.map((item, index)=>{
 
                 return(
-                    <TouchableOpacity>
+                    <TouchableOpacity
+                        onPress={() => {
+                            props.navigation.navigate('ListDetail',
+                            {
+                                title: item.title,
+                                date: props.date,
+                                calories: item.calories,
+                                ingredients: item.ingredients
+                            }
+                            )
+                        }}
+                    >
                           <SubListComponent index={index} item={item} date={props.date}/>
                     </TouchableOpacity>
                 )
