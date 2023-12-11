@@ -11,6 +11,10 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import setUserCalories from '../../function/setUserCalories'
+import setUsersCalories from "../../function/setUserCalories";
+import {useRecoilState} from 'recoil'
+import {caloriesGoalState} from '../../util/globalState'
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -20,13 +24,12 @@ const ProfileScreen = ({ navigation }) => {
   // const [email, setEmail] = React.useState('kritsakorn.s@hotmail.com');
   const [modalVisible, setModalVisible] = useState(false);
   const [user, setUser] = useState({}); // Initialize user as an empty object
-  const [goalCalories, setGoalCalories] = useState(50);
+  const [goalCalories, setGoalCalories] = useRecoilState(caloriesGoalState);
   const [showGoalCalInput, setShowGoalCalInput] = useState(false); // State to manage the visibility of the goal calories input field
 
   useEffect(() => {
     AsyncStorage.getItem("user")
       .then((value) => {
-        console.log(value);
         if (value) {
           setUser(JSON.parse(value)); // Parse the stored string to an object
         }
@@ -112,6 +115,7 @@ const ProfileScreen = ({ navigation }) => {
             onRequestClose={() => {
               Alert.alert("Modal has been closed.");
               setModalVisible(!modalVisible);
+              setUserCalories(user.username, goalCalories || 0);
             }}
           >
             <View style={styles.centeredView}>
@@ -136,7 +140,10 @@ const ProfileScreen = ({ navigation }) => {
                 </View>
                 <Pressable
                   style={[styles.button, styles.buttonClose]}
-                  onPress={() => setModalVisible(!modalVisible)}
+                  onPress={() => {
+                    setModalVisible(!modalVisible)
+                    setUsersCalories(user.uid, goalCalories)
+                } }
                 >
                   <Text style={styles.textStyle}>Confirm</Text>
                 </Pressable>
@@ -191,7 +198,7 @@ const styles = StyleSheet.create({
     flexDirection: "column",
   },
   button: {
-    borderRadius: 20,
+    borderRadius: 10,
     padding: 10,
     elevation: 2,
   },

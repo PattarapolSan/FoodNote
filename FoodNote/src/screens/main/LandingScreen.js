@@ -4,10 +4,13 @@ import { Text ,StyleSheet, View, SafeAreaView,StatusBar, TouchableOpacity} from 
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
+
 // import { SafeAreaView } from "react-native-safe-area-context";
 
 
 const LandingScreen = ({navigation}) =>{
+
+
 
     useEffect(() => {
         const checkAuthentication = async () => {

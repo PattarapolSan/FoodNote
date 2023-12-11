@@ -1,0 +1,77 @@
+import React,{useEffect, useState} from 'react'
+import { StyleSheet, View,TextInput,Pressable,Text, TouchableOpacity } from 'react-native';
+import { FontAwesome } from "@expo/vector-icons";
+import { useRecoilState } from 'recoil';
+import { todayCaloriesState } from '../util/globalState';
+
+
+const HomeListComponent = (props) => {
+        const [todayCal,setTodayCal] = useRecoilState(todayCaloriesState);
+        
+
+
+        const SubListComponent = (props) => {
+            console.log('index', props.index);
+            console.log('date',props.date);
+            return(
+                <View style={styles.subList}>
+                    <View style={{flex:4}}>
+                        <Text style={{fontSize:18}}>{props.item.title || "-"}</Text>
+                    </View>
+                    <View style={{flexDirection: 'row', flex:2, justifyContent:'space-between'}}>
+                        <Text style={{fontSize:18}}>Calories:</Text>
+                        <Text style={{fontSize:18}}>{props.item.calories || "0"}</Text>
+                    </View>
+
+                </View>
+            )
+        }
+
+        
+
+        return(
+        <View style={styles.mainContainer}>
+            <Text style={{fontSize:20, color:'green'}}>{props.date}</Text>
+            {props.items.map((item, index)=>{
+
+                return(
+                    <TouchableOpacity>
+                          <SubListComponent key={index} index={index} item={item} date={props.date}/>
+                    </TouchableOpacity>
+                )
+
+            })}
+            
+         </View>
+        );
+}
+
+
+const styles = StyleSheet.create({
+
+      mainContainer:{
+        backgroundColor: "white",
+        marginTop: 5,
+        paddingTop: 5,
+        paddingLeft: 10,
+        paddingRight: 10,
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        borderRadius: 20,
+        flex: 1
+    },
+    subList: {
+        flexDirection:'row', 
+        justifyContent:'space-between', 
+        marginBottom: 5, 
+        borderWidth:1, 
+        height:40, 
+        alignItems:'center', 
+        paddingRight:10, 
+        paddingLeft:10,
+        borderRadius: 10,
+        marginTop: 5
+    }
+});
+export default HomeListComponent;
+
