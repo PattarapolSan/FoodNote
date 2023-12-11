@@ -1,21 +1,21 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Text, View, Button, Dimensions, ScrollView, StyleSheet, Touchable } from "react-native";
+import { Text, View, Button, Dimensions, ScrollView, StyleSheet, Touchable,Modal,Pressable } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useRecoilState } from 'recoil';
-import { caloriesGoalState, todayCaloriesState } from '../../util/globalState';
 import getUsersCalories from "../../function/getUserCalories";
+import setUsersCalories from "../../function/setUserCalories";
 import getListItems from "../../function/getListItems";
 import ProgressBar from 'react-native-progress/Bar';
 import HomeListComponent from "../../components/HomeListComponent";
-import { TouchableOpacity } from "react-native-gesture-handler";
+import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 
 const HomeScreen = ({ navigation }) => {
-    // const [calories, setCalories] = useRecoilState(caloriesGoalState);
     const [calories, setCalories] = useState(0);
     const [user, setUser] = useState({});
     const [menuList, setMenuList] = useState([]);
-    const [todayCal, setTodayCal] = useRecoilState(todayCaloriesState);
+    const [todayCal, setTodayCal] = useState(0);
+    const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const screenWidth = Dimensions.get('window').width;
 
     const today = new Date().toISOString().split('T')[0];
@@ -38,10 +38,16 @@ const HomeScreen = ({ navigation }) => {
       const fetchUserCalories = useCallback(async () => {
         try {
           const userCalories = await getUsersCalories(user.uid);
-    
           if (userCalories !== null) {
+            console.log('eiei',userCalories);
+            setIsLoading(true);
             setCalories(userCalories);
+            setShowConfirmationModal(false);
           } else {
+            if(!isLoading){
+                setShowConfirmationModal(true);
+            }
+
             console.log('Calories are null for the user:', user.uid);
           }
         } catch (error) {
@@ -52,12 +58,11 @@ const HomeScreen = ({ navigation }) => {
       useEffect(() => {
         // Call fetchUserCalories when the component mounts
         fetchUserCalories();
-      }, [fetchUserCalories, user.uid]);
+      }, [user.uid]);
     
       const fetchListItems = useCallback(async () => {
         try {
           const items = await getListItems(user.uid);
-          console.log('item', items)
     
           if (items !== null) {
             const sortedDates = Object.keys(items).sort((a, b) => new Date(b) - new Date(a));
@@ -69,23 +74,20 @@ const HomeScreen = ({ navigation }) => {
         } catch (error) {
           console.error('Error fetching list items:', error.message);
         }
-      }, [user]);
+      }, [user,fetchListItems]);
     
       useEffect(() => {
-        // Call fetchListItems when the component mounts
         fetchListItems();
       }, [fetchListItems]);
     
       useFocusEffect(
         React.useCallback(() => {
-          // Call fetchListItems when the screen comes into focus
           fetchListItems();
           fetchUserCalories();
         }, [fetchListItems, fetchUserCalories])
       );
     
       useEffect(() => {
-        // Calculate today's calories when menuList changes
         let todayCaloriesSum = 0;
         menuList.forEach(({ date, items }) => {
           if (date === today) {
@@ -96,7 +98,14 @@ const HomeScreen = ({ navigation }) => {
         });
         setTodayCal(todayCaloriesSum);
       }, [menuList, today]);
-    
+
+
+    const handleConfirmation = () => {
+        setUsersCalories(user.uid, calories)
+        setShowConfirmationModal(false);
+    }
+
+
     
     const progress = todayCal / calories;
 
@@ -127,6 +136,28 @@ const HomeScreen = ({ navigation }) => {
                      <Text style={{fontSize:20}}>Add List</Text>
                 </TouchableOpacity>
             </View>
+            <Modal
+                    animationType="fade"
+                    transparent={true}
+                    visible={showConfirmationModal}
+                    onRequestClose={() => setShowConfirmationModal(false)}
+                >
+                    <View style={styles.modalView}>
+                        <Text style={{ fontSize: 25, marginBottom: 20 }}>Please set daily calories goal.</Text>
+                        <TextInput
+                            placeholder="Daily caliries goal"
+                            style={{fontSize:25}}
+                            keyboardType='numeric'
+                            onChangeText={(value)=>setCalories(parseInt(value))}
+                        >
+                        </TextInput>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-around', width: 300}}>
+                            <Pressable style={[styles.button, styles.confirmButton]} onPress={handleConfirmation}>
+                                <Text style={{ fontSize:30, color: 'white', fontWeight:"bold" }}>Confirm</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+                </Modal>
         </View>
     );
 }
@@ -143,6 +174,26 @@ const styles = StyleSheet.create({
     titleView: {
         alignItems: "center"
     },
+    modalView: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: 'white',
+        padding: 20,
+    },
+    button: {
+        borderRadius: 10,
+        padding: 10,
+        marginTop: 40,
+        width: 140,
+        height: 50,
+        alignItems: 'center',
+        justifyContent: 'center'
+    },
+    confirmButton: {
+        backgroundColor: '#FFD52E',
+    },
+    
 });
 
 export default HomeScreen;

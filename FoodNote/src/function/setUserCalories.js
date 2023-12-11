@@ -1,4 +1,4 @@
-import { app, getDatabase, ref, get, push, set } from '../config/FireBase';
+import { getDatabase, ref, set } from '../config/FireBase';
 
 const setUsersCalories = (userId, calories) => {
   const db = getDatabase();

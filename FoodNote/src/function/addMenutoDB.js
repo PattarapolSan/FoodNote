@@ -1,4 +1,4 @@
-import { app, getDatabase, ref, get, push, set } from '../config/FireBase';
+import {getDatabase, ref, get, set } from '../config/FireBase';
 
 const addMenuToDB = (userId, title, date, ingredientsList, calories) => {
   return new Promise((resolve, reject) => {

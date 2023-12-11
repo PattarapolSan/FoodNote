@@ -10,7 +10,7 @@ const getUsersCalories = async (userId) => {
       return snapshot.val().calories;
     } else {
       console.log('Calories goal not found for user:', userId);
-      return null; // or any default value you want to return
+      return null; 
     }
   } catch (error) {
     console.error('Error fetching calories goal:', error.message);
