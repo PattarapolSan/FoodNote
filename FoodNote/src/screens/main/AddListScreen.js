@@ -18,7 +18,6 @@ const AddListScreen = ({navigation}) => {
     AsyncStorage.getItem('user').then((value)=> {
         const userObj = JSON.parse(value);
         setUserId(userObj.uid);
-        console.log(userObj.uid);
     })
 
 
