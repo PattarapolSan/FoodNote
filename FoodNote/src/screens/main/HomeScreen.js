@@ -101,8 +101,11 @@ const HomeScreen = ({ navigation }) => {
             <View style={styles.titleView}>
                 <Text style={{ marginBottom: 15, fontSize: 20 }}>Daily Calories Goal</Text>
                 <ProgressBar progress={progress || 0} width={screenWidth - 40} height={25} color="#DAA520" />
-                <Text style={{ marginTop: 10, fontSize: 20 }}>{todayCal} / {calories}</Text>
             </View>
+            <View style={{flexDirection:'row', justifyContent:'space-between', paddingRight:20, paddingLeft:20}}>
+                    <Text  style={{fontSize: 20 }}>{today}</Text>
+                    <Text style={{fontSize: 20 }}>{todayCal} / {calories}</Text>
+                </View>
             <View style={styles.contentView}>
                 <ScrollView style={{ flex: 1, paddingTop: 10 }}>
                     {menuList.map(({ date, items, index }) => {
