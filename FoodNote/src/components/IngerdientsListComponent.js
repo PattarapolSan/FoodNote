@@ -4,7 +4,6 @@ import { FontAwesome } from "@expo/vector-icons";
 
 
 const IngredientsListComponent = (props) => {
-        console.log(props)
         return(
             <View style={styles.ingredients_add}>
                 <View style={{flexDirection: 'column'}}>
@@ -14,6 +13,7 @@ const IngredientsListComponent = (props) => {
                         style={styles.input} 
                         placeholder='Ingredient Name'
                         value={props.name}
+                        editable={props.edit}
                         onChangeText={(value) => props.onChangeText(props.id, "name", value)}
                     />
                     </View>
@@ -24,6 +24,7 @@ const IngredientsListComponent = (props) => {
                         placeholder='Weigth'
                         keyboardType='numeric'
                         value={props.weight}
+                        editable={props.edit}
                         onChangeText={(value) => props.onChangeText(props.id, "weight", value)}
                     />
                     </View>
@@ -34,18 +35,26 @@ const IngredientsListComponent = (props) => {
                         value={props.calories}
                         keyboardType='numeric'
                         placeholder='Calories'
+                        editable={props.edit}
                         onChangeText={(value) => props.onChangeText(props.id, "calories", value)}
                     />
                     </View>
 
                 </View>
 
+                {
+                    props.showTrash?
+                    <View style={{justifyContent: 'center', paddingRight: 40}}>
+                        <Pressable style={{ alignItems: "center"}} onPress={() => props.onPress(props.id)}>
+                            <FontAwesome name={"trash"} size={30} color="red"/>
+                        </Pressable> 
+                    </View>
+                    :
+                    <View style={{justifyContent: 'center', paddingRight: 40}}>
 
-                <View style={{justifyContent: 'center', paddingRight: 40}}>
-                    <Pressable style={{ alignItems: "center"}} onPress={() => props.onPress(props.id)}>
-                        <FontAwesome name={"trash"} size={30} color="red"/>
-                    </Pressable> 
-                </View>
+                    </View>
+
+                }
 
          </View>
         );

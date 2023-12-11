@@ -11,7 +11,8 @@ import HomeListComponent from "../../components/HomeListComponent";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 const HomeScreen = ({ navigation }) => {
-    const [calories, setCalories] = useRecoilState(caloriesGoalState);
+    // const [calories, setCalories] = useRecoilState(caloriesGoalState);
+    const [calories, setCalories] = useState(0);
     const [user, setUser] = useState({});
     const [menuList, setMenuList] = useState([]);
     const [todayCal, setTodayCal] = useRecoilState(todayCaloriesState);
@@ -21,79 +22,82 @@ const HomeScreen = ({ navigation }) => {
 
     useEffect(() => {
         const fetchUser = async () => {
-            try {
-                const value = await AsyncStorage.getItem('user');
-                if (value) {
-                    setUser(JSON.parse(value));
-                }
-            } catch (error) {
-                console.error('Error fetching user:', error.message);
+          try {
+            const value = await AsyncStorage.getItem('user');
+            if (value) {
+              setUser(JSON.parse(value));
             }
+          } catch (error) {
+            console.error('Error fetching user:', error.message);
+          }
         };
-
+    
         fetchUser();
-    }, []);
-
-    const fetchUserCalories = useCallback(async () => {
+      }, []);
+    
+      const fetchUserCalories = useCallback(async () => {
         try {
-            const userCalories = await getUsersCalories(user.uid);
-
-            if (userCalories !== null) {
-                setCalories(userCalories);
-            } else {
-                console.log('Calories are null for the user:', user.uid);
-            }
+          const userCalories = await getUsersCalories(user.uid);
+    
+          if (userCalories !== null) {
+            setCalories(userCalories);
+          } else {
+            console.log('Calories are null for the user:', user.uid);
+          }
         } catch (error) {
-            console.error('Error fetching user calories:', error.message);
+          console.error('Error fetching user calories:', error.message);
         }
-    }, [user]);
-
-    useEffect(() => {
+      }, [user]);
+    
+      useEffect(() => {
         // Call fetchUserCalories when the component mounts
         fetchUserCalories();
-    }, [fetchUserCalories, user.uid]);
-
-    const fetchListItems = useCallback(async () => {
+      }, [fetchUserCalories, user.uid]);
+    
+      const fetchListItems = useCallback(async () => {
         try {
-            const items = await getListItems(user.uid);
-
-            if (items !== null) {
-                const sortedDates = Object.keys(items).sort((a, b) => new Date(b) - new Date(a));
-                setMenuList(sortedDates.map(date => ({ date, items: items[date] })));
-            } else {
-                console.log('List items are null for the user:', user.uid);
-                setMenuList([])
-            }
+          const items = await getListItems(user.uid);
+          console.log('item', items)
+    
+          if (items !== null) {
+            const sortedDates = Object.keys(items).sort((a, b) => new Date(b) - new Date(a));
+            setMenuList(sortedDates.map(date => ({ date, items: items[date] })));
+          } else {
+            console.log('List items are null for the user:', user.uid);
+            setMenuList([]);
+          }
         } catch (error) {
-            console.error('Error fetching list items:', error.message);
+          console.error('Error fetching list items:', error.message);
         }
-    }, [user]);
-
-    useEffect(() => {
+      }, [user]);
+    
+      useEffect(() => {
         // Call fetchListItems when the component mounts
         fetchListItems();
-    }, [fetchListItems]);
-
-    useFocusEffect(
+      }, [fetchListItems]);
+    
+      useFocusEffect(
         React.useCallback(() => {
-            // Call fetchListItems when the screen comes into focus
-            fetchListItems();
-        }, [fetchListItems])
-    );
-
-    useEffect(() => {
+          // Call fetchListItems when the screen comes into focus
+          fetchListItems();
+          fetchUserCalories();
+        }, [fetchListItems, fetchUserCalories])
+      );
+    
+      useEffect(() => {
         // Calculate today's calories when menuList changes
         let todayCaloriesSum = 0;
         menuList.forEach(({ date, items }) => {
-            if (date === today) {
-                items.forEach(item => {
-                    todayCaloriesSum += item.calories || 0;
-                });
-            }
+          if (date === today) {
+            items.forEach(item => {
+              todayCaloriesSum += item.calories || 0;
+            });
+          }
         });
         setTodayCal(todayCaloriesSum);
-    }, [menuList, today]);
-
+      }, [menuList, today]);
+    
+    
     const progress = todayCal / calories;
 
     return (
@@ -102,7 +106,7 @@ const HomeScreen = ({ navigation }) => {
                 <Text style={{ marginBottom: 15, fontSize: 20 }}>Daily Calories Goal</Text>
                 <ProgressBar progress={progress || 0} width={screenWidth - 40} height={25} color="#DAA520" />
             </View>
-            <View style={{flexDirection:'row', justifyContent:'space-between', paddingRight:20, paddingLeft:20}}>
+            <View style={{flexDirection:'row', justifyContent:'space-between', paddingRight:20, paddingLeft:20, marginTop: 8}}>
                     <Text  style={{fontSize: 20 }}>{today}</Text>
                     <Text style={{fontSize: 20 }}>{todayCal} / {calories}</Text>
                 </View>
@@ -110,7 +114,7 @@ const HomeScreen = ({ navigation }) => {
                 <ScrollView style={{ flex: 1, paddingTop: 10 }}>
                     {menuList.map(({ date, items, index }) => {
                         return (
-                            <HomeListComponent key={index} date={date} items={items}/>
+                            <HomeListComponent key={index} date={date} items={items} navigation={navigation}/>
                         );
                     })}
                 </ScrollView>
