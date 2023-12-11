@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Text,View,StyleSheet,Button, SafeAreaView,Pressable, TextInput, ScrollView, TouchableOpacityComponent, TouchableOpacity} from "react-native";
+import { Text,View,StyleSheet,Button, SafeAreaView,Pressable, TextInput, ScrollView, TouchableOpacity} from "react-native";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import IngredientsListComponent from "../../components/IngerdientsListComponent";
 import { FontAwesome } from "@expo/vector-icons";
