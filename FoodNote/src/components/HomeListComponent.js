@@ -11,8 +11,6 @@ const HomeListComponent = (props) => {
 
 
         const SubListComponent = (props) => {
-            console.log('index', props.index);
-            console.log('date',props.date);
             return(
                 <View style={styles.subList}>
                     <View style={{flex:4}}>
@@ -31,12 +29,12 @@ const HomeListComponent = (props) => {
 
         return(
         <View style={styles.mainContainer}>
-            <Text style={{fontSize:20, color:'green'}}>{props.date}</Text>
+            <Text style={{fontSize:20, color:"#DAA520"}}>{props.date}</Text>
             {props.items.map((item, index)=>{
 
                 return(
                     <TouchableOpacity>
-                          <SubListComponent key={index} index={index} item={item} date={props.date}/>
+                          <SubListComponent index={index} item={item} date={props.date}/>
                     </TouchableOpacity>
                 )
 
