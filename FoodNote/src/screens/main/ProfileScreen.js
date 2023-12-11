@@ -148,7 +148,7 @@ const ProfileScreen = ({ navigation }) => {
             }}
           >
             <Text style={styles.textStyle}>Average Calories:</Text>
-            <Text style={styles.textStyle}>{menuListLength !== 0 ? todayCal / (menuListLength + 1) : 0} calories</Text>
+            <Text style={styles.textStyle}>{Math.round(menuListLength !== 0 ? todayCal / (menuListLength + 1) : 0)} calories</Text>
           </View>
           <View
             style={{
