@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import setUserCalories from '../../function/setUserCalories'
 import setUsersCalories from "../../function/setUserCalories";
 import getUsersCalories from "../../function/getUserCalories";
+import getListItems from "../../function/getListItems";
 
 const windowWidth = Dimensions.get("window").width;
 const windowHeight = Dimensions.get("window").height;
@@ -22,6 +23,8 @@ const ProfileScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [user, setUser] = useState({}); 
   const [calories, setCalories] = useState(0);
+  const [menuList, setMenuList] = useState([]);
+  const [todayCal, setTodayCal] = useState(0);
 
 
   useEffect(() => {
@@ -53,10 +56,38 @@ const ProfileScreen = ({ navigation }) => {
     }
   }, [user]);
 
+  const fetchListItems = useCallback(async () => {
+    try {
+      const items = await getListItems(user.uid);
+
+      if (items !== null) {
+        const sortedDates = Object.keys(items).sort((a, b) => new Date(b) - new Date(a));
+        setMenuList(sortedDates.map(date => ({ date, items: items[date] })));
+      } else {
+        console.log('List items are null for the user:', user.uid);
+        setMenuList([]);
+      }
+    } catch (error) {
+      console.error('Error fetching list items:', error.message);
+    }
+  }, [user]);
+
   useEffect(() => {
     // Call fetchUserCalories when the component mounts
     fetchUserCalories();
-  }, [fetchUserCalories, user.uid]);
+    fetchListItems();
+  }, [fetchUserCalories, fetchListItems,user.uid]);
+
+
+  useEffect(() => {
+    let todayCaloriesSum = 0;
+    menuList.forEach(({items }) => {
+        items.forEach(item => {
+          todayCaloriesSum += item.calories || 0;
+        });
+    });
+    setTodayCal(todayCaloriesSum);
+  }, [menuList]);
 
   const handleGoalCalInput = (value) => {
     // Check if the value is a number and within the limit of 99999
@@ -113,7 +144,7 @@ const ProfileScreen = ({ navigation }) => {
             }}
           >
             <Text style={styles.textStyle}>Average Calories:</Text>
-            <Text style={styles.textStyle}>38 calories</Text>
+            <Text style={styles.textStyle}>{todayCal/(menuList.length+1)} calories</Text>
           </View>
           <View
             style={{

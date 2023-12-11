@@ -36,7 +36,8 @@ const HomeListComponent = (props) => {
                                 title: item.title,
                                 date: props.date,
                                 calories: item.calories,
-                                ingredients: item.ingredients
+                                ingredients: item.ingredients,
+                                index: index
                             }
                             )
                         }}
