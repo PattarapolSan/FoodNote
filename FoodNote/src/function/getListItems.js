@@ -7,7 +7,6 @@ const getListItems = async (userId) => {
     const snapshot = await get(ref(db, `users/${userId}/lists`));
 
     if (snapshot.exists()) {
-      console.log(snapshot.val());
       return snapshot.val();
     } else {
       console.log('Menu lists not found for user:', userId);

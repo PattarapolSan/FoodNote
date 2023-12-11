@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Text, View, Button, Dimensions, ScrollView, StyleSheet, Touchable,Modal,Pressable } from "react-native";
+import { Text, View, Button, Dimensions, ScrollView, StyleSheet, Touchable,Modal,Pressable,TextInput, TouchableOpacity } from "react-native";
 import { useFocusEffect } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import getUsersCalories from "../../function/getUserCalories";
@@ -7,7 +7,6 @@ import setUsersCalories from "../../function/setUserCalories";
 import getListItems from "../../function/getListItems";
 import ProgressBar from 'react-native-progress/Bar';
 import HomeListComponent from "../../components/HomeListComponent";
-import { TextInput, TouchableOpacity } from "react-native-gesture-handler";
 
 const HomeScreen = ({ navigation }) => {
     const [calories, setCalories] = useState(0);
@@ -39,7 +38,6 @@ const HomeScreen = ({ navigation }) => {
         try {
           const userCalories = await getUsersCalories(user.uid);
           if (userCalories !== null) {
-            console.log('eiei',userCalories);
             setIsLoading(true);
             setCalories(userCalories);
             setShowConfirmationModal(false);
@@ -56,7 +54,6 @@ const HomeScreen = ({ navigation }) => {
       }, [user]);
     
       useEffect(() => {
-        // Call fetchUserCalories when the component mounts
         fetchUserCalories();
       }, [user.uid]);
     
