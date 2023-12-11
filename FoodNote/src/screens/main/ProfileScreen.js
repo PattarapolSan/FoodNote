@@ -1,17 +1,17 @@
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useFocusEffect } from '@react-navigation/native';
 import {
   Text,
   View,
-  Button,
+  Pressable,
   TextInput,
   StyleSheet,
   Modal,
-  Pressable,
   Dimensions,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import setUserCalories from '../../function/setUserCalories'
+import setUserCalories from '../../function/setUserCalories';
 import setUsersCalories from "../../function/setUserCalories";
 import getUsersCalories from "../../function/getUserCalories";
 import getListItems from "../../function/getListItems";
@@ -21,21 +21,21 @@ const windowHeight = Dimensions.get("window").height;
 
 const ProfileScreen = ({ navigation }) => {
   const [modalVisible, setModalVisible] = useState(false);
-  const [user, setUser] = useState({}); 
+  const [user, setUser] = useState({});
   const [calories, setCalories] = useState(0);
   const [menuList, setMenuList] = useState([]);
+  const [menuListLength, setMenuListLength] = useState(0);
   const [todayCal, setTodayCal] = useState(0);
-
 
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const value = await AsyncStorage.getItem('user');
+        const value = await AsyncStorage.getItem("user");
         if (value) {
           setUser(JSON.parse(value));
         }
       } catch (error) {
-        console.error('Error fetching user:', error.message);
+        console.error("Error fetching user:", error.message);
       }
     };
 
@@ -49,10 +49,10 @@ const ProfileScreen = ({ navigation }) => {
       if (userCalories !== null) {
         setCalories(userCalories);
       } else {
-        console.log('Calories are null for the user:', user.uid);
+        console.log("Calories are null for the user:", user.uid);
       }
     } catch (error) {
-      console.error('Error fetching user calories:', error.message);
+      console.error("Error fetching user calories:", error.message);
     }
   }, [user]);
 
@@ -61,47 +61,50 @@ const ProfileScreen = ({ navigation }) => {
       const items = await getListItems(user.uid);
 
       if (items !== null) {
-        const sortedDates = Object.keys(items).sort((a, b) => new Date(b) - new Date(a));
+        const sortedDates = Object.keys(items || {}).sort((a, b) => new Date(b) - new Date(a));
         setMenuList(sortedDates.map(date => ({ date, items: items[date] })));
+        setMenuListLength(sortedDates.length);
       } else {
-        console.log('List items are null for the user:', user.uid);
+        console.log("List items are null for the user:", user.uid);
         setMenuList([]);
       }
     } catch (error) {
-      console.error('Error fetching list items:', error.message);
+      console.error("Error fetching list items:", error.message);
     }
   }, [user]);
 
   useEffect(() => {
-    // Call fetchUserCalories when the component mounts
     fetchUserCalories();
     fetchListItems();
-  }, [fetchUserCalories, fetchListItems,user.uid]);
+  }, [fetchUserCalories, fetchListItems]);
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserCalories();
+      fetchListItems();
+    }, [fetchUserCalories, fetchListItems, user.uid])
+  );
 
   useEffect(() => {
     let todayCaloriesSum = 0;
-    menuList.forEach(({items }) => {
-        items.forEach(item => {
-          todayCaloriesSum += item.calories || 0;
-        });
+    menuList.forEach(({ items }) => {
+      items.forEach((item) => {
+        todayCaloriesSum += item.calories || 0;
+      });
     });
     setTodayCal(todayCaloriesSum);
-  }, [menuList]);
+  }, [menuList, user]);
 
   const handleGoalCalInput = (value) => {
-    // Check if the value is a number and within the limit of 99999
     const newValue = parseInt(value);
 
     if (Number.isNaN(newValue)) {
-      setCalories(0); //setter for state
+      setCalories(0);
     } else if (newValue > 10) {
       setCalories(newValue);
     } else {
       setCalories(newValue);
     }
-  
-
   };
 
   const handleLogout = () => {
@@ -112,8 +115,8 @@ const ProfileScreen = ({ navigation }) => {
 
   return (
     <LinearGradient
-      colors={["#FFD52E", "#FFD52E", "#fff"]} // Replace with your desired gradient colors
-      start={{ x: 0, y: 0 }} // Gradient start point (top-left)
+      colors={["#FFD52E", "#FFD52E", "#fff"]}
+      start={{ x: 0, y: 0 }}
       end={{ x: 0.5, y: 1 }}
       style={{ flex: 1 }}
     >
@@ -144,7 +147,7 @@ const ProfileScreen = ({ navigation }) => {
             }}
           >
             <Text style={styles.textStyle}>Average Calories:</Text>
-            <Text style={styles.textStyle}>{todayCal/(menuList.length+1)} calories</Text>
+            <Text style={styles.textStyle}>{menuListLength !== 0 ? todayCal / (menuListLength + 1) : 0} calories</Text>
           </View>
           <View
             style={{
@@ -172,7 +175,7 @@ const ProfileScreen = ({ navigation }) => {
             onRequestClose={() => {
               Alert.alert("Modal has been closed.");
               setModalVisible(!modalVisible);
-              setUserCalories(user.username, goalCalories || 0);
+              setUserCalories(user.username, calories || 0);
             }}
           >
             <View style={styles.centeredView}>
@@ -198,9 +201,9 @@ const ProfileScreen = ({ navigation }) => {
                 <Pressable
                   style={[styles.button, styles.buttonClose]}
                   onPress={() => {
-                    setModalVisible(!modalVisible)
-                    setUsersCalories(user.uid, calories )
-                } }
+                    setModalVisible(!modalVisible);
+                    setUsersCalories(user.uid, calories);
+                  }}
                 >
                   <Text style={styles.textStyle}>Confirm</Text>
                 </Pressable>
